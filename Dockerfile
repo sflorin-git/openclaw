@@ -111,7 +111,7 @@ LABEL org.opencontainers.image.base.name="docker.io/library/node:24-bookworm-sli
   org.opencontainers.image.base.digest="${OPENCLAW_NODE_BOOKWORM_SLIM_DIGEST}"
 
 # ── Stage 3: Runtime ────────────────────────────────────────────
-FROM base-${OPENCLAW_VARIANT}
+FROM base-default
 ARG OPENCLAW_VARIANT
 
 # OCI base-image metadata for downstream image consumers.
@@ -260,5 +260,3 @@ CMD sh -c '\
   node openclaw.mjs config set agents.defaults.model.fallbacks '\''["openrouter/claude-sonnet-4.6","openrouter/gpt-5.4"]'\'' && \
   node openclaw.mjs config set agents.defaults.models '\''{"openrouter/gpt-5-mini":{"alias":"GPT5m"},"openrouter/gpt-5.4":{"alias":"GPT5.4"},"openrouter/claude-sonnet-4.6":{"alias":"Claude"},"openrouter/glm-5":{"alias":"GLM5"},"openrouter/deepseek-r1-0528":{"alias":"DeepSeek"},"openrouter/devstral-2512":{"alias":"Devstral"}}'\'' && \
   exec node openclaw.mjs gateway --bind lan'
-
-
