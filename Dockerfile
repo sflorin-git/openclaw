@@ -230,6 +230,9 @@ ENV NODE_ENV=production
 # Security hardening: Run as non-root user
 # The node:24-bookworm image includes a 'node' user (uid 1000)
 # This reduces the attack surface by preventing container escape via root privileges
+# Ensure config directory exists and is writable by the non-root node user
+RUN mkdir -p /home/node/.openclaw && chown -R node:node /home/node/.openclaw
+
 USER node
 
 # Start gateway server with default config.
@@ -247,4 +250,3 @@ USER node
 HEALTHCHECK --interval=3m --timeout=10s --start-period=15s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:18789/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
   CMD node openclaw.mjs config set gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback true && node openclaw.mjs gateway --allow-unconfigured --bind lan
-
