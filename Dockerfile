@@ -256,7 +256,7 @@ HEALTHCHECK --interval=3m --timeout=10s --start-period=15s --retries=3 \
   node openclaw.mjs config set gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback true && \
   node openclaw.mjs config set gateway.controlUi.dangerouslyDisableDeviceAuth true && \
   node openclaw.mjs config set gateway.trustedProxies '\''["10.0.2.0/24"]'\'' && \
-  node openclaw.mjs config set agents.defaults.provider "openrouter" && \
   node openclaw.mjs config set agents.defaults.model.primary "openai/gpt-5-mini" && \
   node openclaw.mjs config set agents.defaults.models '\''{"openai/gpt-5-mini":{"alias":"GPT5m"},"openai/gpt-5.4":{"alias":"GPT5.4"},"anthropic/claude-sonnet-4.6":{"alias":"Claude"},"z-ai/glm-5":{"alias":"GLM5"},"deepseek/deepseek-r1-0528":{"alias":"DeepSeek"},"mistralai/devstral-2512":{"alias":"Devstral"}}'\'' && \
   exec node openclaw.mjs gateway --bind lan'
+
