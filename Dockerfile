@@ -249,5 +249,14 @@ USER node
 # For external access from host/ingress, override bind to "lan" and set auth.
 HEALTHCHECK --interval=3m --timeout=10s --start-period=15s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:18789/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-  CMD sh -c 'mkdir -p $HOME/.openclaw && node openclaw.mjs config set gateway.mode local && node openclaw.mjs config set gateway.auth.token "${OPENCLAW_GATEWAY_TOKEN}" && node openclaw.mjs config set gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback true && node openclaw.mjs config set gateway.controlUi.dangerouslyDisableDeviceAuth true && node openclaw.mjs config set gateway.trustedProxies '\''["10.0.2.0/24"]'\'' && exec node openclaw.mjs gateway --bind lan'
-
+  CMD sh -c '\
+  mkdir -p $HOME/.openclaw && \
+  node openclaw.mjs config set gateway.mode local && \
+  node openclaw.mjs config set gateway.auth.token "${OPENCLAW_GATEWAY_TOKEN}" && \
+  node openclaw.mjs config set gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback true && \
+  node openclaw.mjs config set gateway.controlUi.dangerouslyDisableDeviceAuth true && \
+  node openclaw.mjs config set gateway.trustedProxies '\''["10.0.2.0/24"]'\'' && \
+  node openclaw.mjs config set agents.defaults.provider "openrouter" && \
+  node openclaw.mjs config set agents.defaults.model.primary "openai/gpt-5-mini" && \
+  node openclaw.mjs config set agents.defaults.models '\''{"openai/gpt-5-mini":{"alias":"GPT5m"},"openai/gpt-5.4":{"alias":"GPT5.4"},"anthropic/claude-sonnet-4.6":{"alias":"Claude"},"z-ai/glm-5":{"alias":"GLM5"},"deepseek/deepseek-r1-0528":{"alias":"DeepSeek"},"mistralai/devstral-2512":{"alias":"Devstral"}}'\'' && \
+  exec node openclaw.mjs gateway --bind lan'
