@@ -738,7 +738,7 @@
   "devDependencies": {
     "@grammyjs/types": "^3.25.0",
     "@lit-labs/signals": "^0.2.0",
-    "@lit/context": "^1.1.6",
+    "@tanstack/react-query": "^5.62.7",
     "@types/express": "^5.0.6",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^25.5.0",
@@ -752,6 +752,7 @@
     "oxfmt": "0.41.0",
     "oxlint": "^1.56.0",
     "oxlint-tsgolint": "^0.17.0",
+    "react": "^19.0.0",
     "signal-utils": "0.21.1",
     "tsdown": "0.21.4",
     "tsx": "^4.21.0",

@@ -240,6 +240,10 @@ RUN mkdir -p /home/node/.openclaw/agents/main/agent && chown -R node:node /home/
 # The entrypoint script runs as root to fix volume permissions,
 # then drops privileges to the 'node' user via gosu.
 
+# NOTE: We intentionally do NOT set USER node here.
+# The entrypoint script runs as root to fix volume permissions,
+# then drops privileges to the 'node' user via gosu.
+
 # Built-in probe endpoints for container health checks:
 #   - GET /healthz (liveness) and GET /readyz (readiness)
 #   - aliases: /health and /ready
