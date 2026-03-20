@@ -230,6 +230,7 @@ ENV NODE_ENV=production
 # Security hardening: Run as non-root user
 # The node:24-bookworm image includes a 'node' user (uid 1000)
 # This reduces the attack surface by preventing container escape via root privileges
+RUN mkdir -p /home/node/.openclaw/agents/main/agent && chown -R node:node /home/node/.openclaw
 USER node
 
 # Start gateway server with default config.
@@ -247,13 +248,11 @@ USER node
 HEALTHCHECK --interval=3m --timeout=10s --start-period=15s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:18789/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD sh -c '\
-  mkdir -p $HOME/.openclaw && \
   node openclaw.mjs config set gateway.mode local && \
   node openclaw.mjs config set gateway.auth.token "${OPENCLAW_GATEWAY_TOKEN}" && \
   node openclaw.mjs config set gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback true && \
   node openclaw.mjs config set gateway.controlUi.dangerouslyDisableDeviceAuth true && \
   node openclaw.mjs config set gateway.trustedProxies '\''["10.0.2.0/24"]'\'' && \
-  mkdir -p $HOME/.openclaw/agents/main/agent && \
   echo "{\"mode\":\"merge\",\"providers\":{\"openrouter\":{\"baseUrl\":\"https://openrouter.ai/api/v1\",\"apiKey\":\"${OPENROUTER_API_KEY}\",\"api\":\"openai-completions\",\"models\":[{\"id\":\"gpt-5-mini\",\"name\":\"GPT-5 mini\",\"reasoning\":false,\"input\":[\"text\"],\"cost\":{\"input\":0.25,\"output\":2.0,\"cacheRead\":0.025},\"contextWindow\":400000,\"maxTokens\":128000},{\"id\":\"gpt-5.4\",\"name\":\"GPT-5.4\",\"reasoning\":true,\"input\":[\"text\"],\"cost\":{\"input\":2.5,\"output\":15.0,\"cacheRead\":0.25},\"contextWindow\":1050000,\"maxTokens\":128000},{\"id\":\"claude-sonnet-4.6\",\"name\":\"Claude Sonnet 4.6\",\"reasoning\":true,\"input\":[\"text\"],\"cost\":{\"input\":3.0,\"output\":15.0,\"cacheRead\":0},\"contextWindow\":1000000,\"maxTokens\":128000},{\"id\":\"glm-5\",\"name\":\"GLM-5\",\"reasoning\":false,\"input\":[\"text\"],\"cost\":{\"input\":0.8,\"output\":2.56,\"cacheRead\":0.16},\"contextWindow\":202752,\"maxTokens\":128000},{\"id\":\"deepseek-r1-0528\",\"name\":\"DeepSeek R1 0528\",\"reasoning\":true,\"input\":[\"text\"],\"cost\":{\"input\":0.45,\"output\":2.15,\"cacheRead\":0.225},\"contextWindow\":163840,\"maxTokens\":128000},{\"id\":\"devstral-2512\",\"name\":\"Devstral 2 2512\",\"reasoning\":false,\"input\":[\"text\"],\"cost\":{\"input\":0.4,\"output\":2.0,\"cacheRead\":0},\"contextWindow\":262144,\"maxTokens\":128000}]}}}" > $HOME/.openclaw/agents/main/agent/models.json && \
   node openclaw.mjs config set agents.defaults.provider "openrouter" && \
   node openclaw.mjs config set agents.defaults.model.primary "openrouter/gpt-5-mini" && \
