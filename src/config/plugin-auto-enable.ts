@@ -30,6 +30,7 @@ export type PluginAutoEnableResult = {
 
 const PROVIDER_PLUGIN_IDS: Array<{ pluginId: string; providerId: string }> = [
   { pluginId: "google", providerId: "google-gemini-cli" },
+  { pluginId: "openai", providerId: "openai" },
   { pluginId: "qwen-portal-auth", providerId: "qwen-portal" },
   { pluginId: "copilot-proxy", providerId: "copilot-proxy" },
   { pluginId: "minimax", providerId: "minimax-portal" },

@@ -19,6 +19,7 @@ import { DuplicateAgentDirError, findDuplicateAgentDirs } from "./agent-dirs.js"
 import { maintainConfigBackups } from "./backup-rotation.js";
 import {
   applyCompactionDefaults,
+  applyConfigRuntimeOverrides,
   applyContextPruningDefaults,
   applyAgentDefaults,
   applyLoggingDefaults,
@@ -796,16 +797,19 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         deps.logger.warn(`Config warnings:\\n${details}`);
       }
       warnIfConfigFromFuture(validated.config, deps.logger);
-      const cfg = applyTalkConfigNormalization(
-        applyModelDefaults(
-          applyCompactionDefaults(
-            applyContextPruningDefaults(
-              applyAgentDefaults(
-                applySessionDefaults(applyLoggingDefaults(applyMessageDefaults(validated.config))),
+      const cfg = applyConfigRuntimeOverrides(
+        applyTalkConfigNormalization(
+          applyModelDefaults(
+            applyCompactionDefaults(
+              applyContextPruningDefaults(
+                applyAgentDefaults(
+                  applySessionDefaults(applyLoggingDefaults(applyMessageDefaults(validated.config))),
+                ),
               ),
             ),
           ),
         ),
+        deps.env,
       );
       normalizeConfigPaths(cfg);
       normalizeExecSafeBinProfilesInConfig(cfg);

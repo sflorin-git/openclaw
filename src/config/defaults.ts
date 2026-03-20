@@ -128,6 +128,112 @@ export type SessionDefaultsOptions = {
   warnState?: WarnState;
 };
 
+export function applyConfigRuntimeOverrides(
+  cfg: OpenClawConfig,
+  env: NodeJS.ProcessEnv = process.env,
+): OpenClawConfig {
+  let mutated = false;
+  let nextCfg = cfg;
+
+  const mode = env.OPENCLAW_GATEWAY_MODE;
+  if (mode && nextCfg.gateway?.mode !== mode) {
+    nextCfg = {
+      ...nextCfg,
+      gateway: { ...nextCfg.gateway, mode: mode as any },
+    };
+    mutated = true;
+  }
+
+  const token = env.OPENCLAW_GATEWAY_TOKEN;
+  if (token) {
+    const auth = nextCfg.gateway?.auth ?? {};
+    if (auth.token !== token) {
+      nextCfg = {
+        ...nextCfg,
+        gateway: {
+          ...nextCfg.gateway,
+          auth: { ...auth, token },
+        },
+      };
+      mutated = true;
+    }
+  }
+
+  const allowFallback = env.OPENCLAW_CONTROL_UI_FALLBACK === "true";
+  if (allowFallback && nextCfg.gateway?.controlUi?.dangerouslyAllowHostHeaderOriginFallback !== true) {
+    nextCfg = {
+      ...nextCfg,
+      gateway: {
+        ...nextCfg.gateway,
+        controlUi: { ...nextCfg.gateway?.controlUi, dangerouslyAllowHostHeaderOriginFallback: true },
+      },
+    };
+    mutated = true;
+  }
+
+  const disableAuth = env.OPENCLAW_CONTROL_UI_NO_AUTH === "true";
+  if (disableAuth && nextCfg.gateway?.controlUi?.dangerouslyDisableDeviceAuth !== true) {
+    nextCfg = {
+      ...nextCfg,
+      gateway: {
+        ...nextCfg.gateway,
+        controlUi: { ...nextCfg.gateway?.controlUi, dangerouslyDisableDeviceAuth: true },
+      },
+    };
+    mutated = true;
+  }
+
+  const trustedProxies = env.OPENCLAW_TRUSTED_PROXIES;
+  if (trustedProxies) {
+    try {
+      const parsed = JSON.parse(trustedProxies);
+      if (Array.isArray(parsed) && JSON.stringify(nextCfg.gateway?.trustedProxies) !== trustedProxies) {
+        nextCfg = {
+          ...nextCfg,
+          gateway: { ...nextCfg.gateway, trustedProxies: parsed },
+        };
+        mutated = true;
+      }
+    } catch {
+      // Ignore malformed JSON
+    }
+  }
+
+  const provider = env.OPENCLAW_AGENTS_PROVIDER;
+  if (provider) {
+    const agents = nextCfg.agents ?? {};
+    const defaults = agents.defaults ?? {};
+    if (defaults.provider !== provider) {
+      nextCfg = {
+        ...nextCfg,
+        agents: {
+          ...agents,
+          defaults: { ...defaults, provider },
+        },
+      };
+      mutated = true;
+    }
+  }
+
+  const model = env.OPENCLAW_AGENTS_MODEL;
+  if (model) {
+    const agents = nextCfg.agents ?? {};
+    const defaults = agents.defaults ?? {};
+    if (defaults.model !== model) {
+      nextCfg = {
+        ...nextCfg,
+        agents: {
+          ...agents,
+          defaults: { ...defaults, model },
+        },
+      };
+      mutated = true;
+    }
+  }
+
+  return mutated ? nextCfg : cfg;
+}
+
 export function applyMessageDefaults(cfg: OpenClawConfig): OpenClawConfig {
   const messages = cfg.messages;
   const hasAckScope = messages?.ackReactionScope !== undefined;

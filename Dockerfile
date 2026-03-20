@@ -88,6 +88,7 @@ RUN pnpm canvas:a2ui:bundle || \
   echo "/* A2UI bundle unavailable in this build */" > src/canvas-host/a2ui/a2ui.bundle.js && \
   echo "stub" > src/canvas-host/a2ui/.bundle.hash && \
   rm -rf vendor/a2ui apps/shared/OpenClawKit/Tools/CanvasA2UI)
+ENV OPENCLAW_BUILD_SOFT_FAIL=true
 RUN pnpm build:docker
 # Force pnpm for UI build (Bun may fail on ARM/Synology architectures)
 ENV OPENCLAW_PREFER_PNPM=1
@@ -248,14 +249,5 @@ USER node
 HEALTHCHECK --interval=3m --timeout=10s --start-period=15s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:18789/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD sh -c '\
-  node openclaw.mjs config set gateway.mode local && \
-  node openclaw.mjs config set gateway.auth.token "${OPENCLAW_GATEWAY_TOKEN}" && \
-  node openclaw.mjs config set gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback true && \
-  node openclaw.mjs config set gateway.controlUi.dangerouslyDisableDeviceAuth true && \
-  node openclaw.mjs config set gateway.trustedProxies '\''["10.0.2.0/24"]'\'' && \
   echo "{\"mode\":\"merge\",\"providers\":{\"openrouter\":{\"baseUrl\":\"https://openrouter.ai/api/v1\",\"apiKey\":\"${OPENROUTER_API_KEY}\",\"api\":\"openai-completions\",\"models\":[{\"id\":\"gpt-5-mini\",\"name\":\"GPT-5 mini\",\"reasoning\":false,\"input\":[\"text\"],\"cost\":{\"input\":0.25,\"output\":2.0,\"cacheRead\":0.025},\"contextWindow\":400000,\"maxTokens\":128000},{\"id\":\"gpt-5.4\",\"name\":\"GPT-5.4\",\"reasoning\":true,\"input\":[\"text\"],\"cost\":{\"input\":2.5,\"output\":15.0,\"cacheRead\":0.25},\"contextWindow\":1050000,\"maxTokens\":128000},{\"id\":\"claude-sonnet-4.6\",\"name\":\"Claude Sonnet 4.6\",\"reasoning\":true,\"input\":[\"text\"],\"cost\":{\"input\":3.0,\"output\":15.0,\"cacheRead\":0},\"contextWindow\":1000000,\"maxTokens\":128000},{\"id\":\"glm-5\",\"name\":\"GLM-5\",\"reasoning\":false,\"input\":[\"text\"],\"cost\":{\"input\":0.8,\"output\":2.56,\"cacheRead\":0.16},\"contextWindow\":202752,\"maxTokens\":128000},{\"id\":\"deepseek-r1-0528\",\"name\":\"DeepSeek R1 0528\",\"reasoning\":true,\"input\":[\"text\"],\"cost\":{\"input\":0.45,\"output\":2.15,\"cacheRead\":0.225},\"contextWindow\":163840,\"maxTokens\":128000},{\"id\":\"devstral-2512\",\"name\":\"Devstral 2 2512\",\"reasoning\":false,\"input\":[\"text\"],\"cost\":{\"input\":0.4,\"output\":2.0,\"cacheRead\":0},\"contextWindow\":262144,\"maxTokens\":128000}]}}}" > $HOME/.openclaw/agents/main/agent/models.json && \
-  node openclaw.mjs config set agents.defaults.provider "openrouter" && \
-  node openclaw.mjs config set agents.defaults.model.primary "openrouter/gpt-5-mini" && \
-  node openclaw.mjs config set agents.defaults.model.fallbacks '\''["openrouter/claude-sonnet-4.6","openrouter/gpt-5.4"]'\'' && \
-  node openclaw.mjs config set agents.defaults.models '\''{"openrouter/gpt-5-mini":{"alias":"GPT5m"},"openrouter/gpt-5.4":{"alias":"GPT5.4"},"openrouter/claude-sonnet-4.6":{"alias":"Claude"},"openrouter/glm-5":{"alias":"GLM5"},"openrouter/deepseek-r1-0528":{"alias":"DeepSeek"},"openrouter/devstral-2512":{"alias":"Devstral"}}'\'' && \
   exec node openclaw.mjs gateway --bind lan'

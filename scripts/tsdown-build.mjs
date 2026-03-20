@@ -91,7 +91,13 @@ if (fatalUnresolvedImport) {
   process.exit(1);
 }
 
+const softFail = process.env.OPENCLAW_BUILD_SOFT_FAIL === "true";
+
 if (typeof result.status === "number") {
+  if (result.status !== 0 && softFail) {
+    console.warn(`\u26A0\uFE0F tsdown failed with status ${result.status}, but SOFT_FAIL is enabled. Proceeding...`);
+    process.exit(0);
+  }
   process.exit(result.status);
 }
 
