@@ -1,0 +1,5 @@
+﻿ÔÇëWARNÔÇë Unsupported engine: wanted: {"node":">=22.16.0"} (current: {"node":"v20.5.0","pnpm":"10.23.0"})
+src/infra/infra-runtime.test.ts(67,66): error TS2367: This comparison appears to be unintentional because the types '"worker"' and '"SIGUSR1"' have no overlap.
+src/infra/infra-runtime.test.ts(89,66): error TS2367: This comparison appears to be unintentional because the types '"worker"' and '"SIGUSR1"' have no overlap.
+src/infra/infra-runtime.test.ts(115,52): error TS2367: This comparison appears to be unintentional because the types '"worker"' and '"SIGUSR1"' have no overlap.
+src/infra/infra-runtime.test.ts(118,52): error TS2367: This comparison appears to be unintentional because the types '"worker"' and '"SIGUSR1"' have no overlap.
