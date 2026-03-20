@@ -135,7 +135,7 @@ RUN --mount=type=cache,id=openclaw-bookworm-apt-cache,target=/var/cache/apt,shar
   apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get upgrade -y --no-install-recommends && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  procps hostname curl git lsof openssl
+  procps hostname curl git lsof openssl gosu
 
 RUN chown node:node /app
 
@@ -226,26 +226,23 @@ RUN --mount=type=cache,id=openclaw-bookworm-apt-cache,target=/var/cache/apt,shar
 RUN ln -sf /app/openclaw.mjs /usr/local/bin/openclaw \
   && chmod 755 /app/openclaw.mjs
 
+# Copy entrypoint script that handles volume permissions and privilege drop.
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod 755 /app/docker-entrypoint.sh
+
 ENV NODE_ENV=production
 
-# Security hardening: Run as non-root user
-# The node:24-bookworm image includes a 'node' user (uid 1000)
-# This reduces the attack surface by preventing container escape via root privileges
+# Pre-create the .openclaw directory for non-volume scenarios.
+# When a volume is mounted at runtime, the entrypoint script will fix ownership.
 RUN mkdir -p /home/node/.openclaw/agents/main/agent && chown -R node:node /home/node/.openclaw
-USER node
 
-# Start gateway server with default config.
-# Binds to loopback (127.0.0.1) by default for security.
-#
-# IMPORTANT: With Docker bridge networking (-p 18789:18789), loopback bind
-# makes the gateway unreachable from the host. Either:
-#   - Use --network host, OR
-#   - Override --bind to "lan" (0.0.0.0) and set auth credentials
-#
+# NOTE: We intentionally do NOT set USER node here.
+# The entrypoint script runs as root to fix volume permissions,
+# then drops privileges to the 'node' user via gosu.
+
 # Built-in probe endpoints for container health checks:
 #   - GET /healthz (liveness) and GET /readyz (readiness)
 #   - aliases: /health and /ready
-# For external access from host/ingress, override bind to "lan" and set auth.
 HEALTHCHECK --interval=3m --timeout=10s --start-period=15s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:18789/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["sh", "-c", "mkdir -p /home/node/.openclaw/agents/main/agent && echo '{\"mode\":\"merge\",\"providers\":{\"openrouter\":{\"baseUrl\":\"https://openrouter.ai/api/v1\",\"apiKey\":\"'${OPENROUTER_API_KEY}'\",\"api\":\"openai-completions\",\"models\":[{\"id\":\"gpt-5-mini\",\"name\":\"GPT-5 mini\",\"reasoning\":false,\"input\":[\"text\"],\"cost\":{\"input\":0.25,\"output\":2.0,\"cacheRead\":0.025},\"contextWindow\":400000,\"maxTokens\":128000},{\"id\":\"gpt-5.4\",\"name\":\"GPT-5.4\",\"reasoning\":true,\"input\":[\"text\"],\"cost\":{\"input\":2.5,\"output\":15.0,\"cacheRead\":0.25},\"contextWindow\":1050000,\"maxTokens\":128000},{\"id\":\"claude-sonnet-4.6\",\"name\":\"Claude Sonnet 4.6\",\"reasoning\":true,\"input\":[\"text\"],\"cost\":{\"input\":3.0,\"output\":15.0,\"cacheRead\":0},\"contextWindow\":1000000,\"maxTokens\":128000},{\"id\":\"glm-5\",\"name\":\"GLM-5\",\"reasoning\":false,\"input\":[\"text\"],\"cost\":{\"input\":0.8,\"output\":2.56,\"cacheRead\":0.16},\"contextWindow\":202752,\"maxTokens\":128000},{\"id\":\"deepseek-r1-0528\",\"name\":\"DeepSeek R1 0528\",\"reasoning\":true,\"input\":[\"text\"],\"cost\":{\"input\":0.45,\"output\":2.15,\"cacheRead\":0.225},\"contextWindow\":163840,\"maxTokens\":128000},{\"id\":\"devstral-2512\",\"name\":\"Devstral 2 2512\",\"reasoning\":false,\"input\":[\"text\"],\"cost\":{\"input\":0.4,\"output\":2.0,\"cacheRead\":0},\"contextWindow\":262144,\"maxTokens\":128000}]}}' > /home/node/.openclaw/agents/main/agent/models.json && exec node openclaw.mjs gateway --bind lan"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
