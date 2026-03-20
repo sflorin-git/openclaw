@@ -17,6 +17,7 @@ import {
 export const AgentDefaultsSchema = z
   .object({
     model: AgentModelSchema.optional(),
+    provider: z.string().optional(),
     imageModel: AgentModelSchema.optional(),
     imageGenerationModel: AgentModelSchema.optional(),
     pdfModel: AgentModelSchema.optional(),

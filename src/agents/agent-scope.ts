@@ -29,6 +29,7 @@ type ResolvedAgentConfig = {
   name?: string;
   workspace?: string;
   agentDir?: string;
+  provider?: string;
   model?: AgentEntry["model"];
   skills?: AgentEntry["skills"];
   memorySearch?: AgentEntry["memorySearch"];
@@ -128,6 +129,7 @@ export function resolveAgentConfig(
     name: typeof entry.name === "string" ? entry.name : undefined,
     workspace: typeof entry.workspace === "string" ? entry.workspace : undefined,
     agentDir: typeof entry.agentDir === "string" ? entry.agentDir : undefined,
+    provider: typeof entry.provider === "string" ? entry.provider : undefined,
     model:
       typeof entry.model === "string" || (entry.model && typeof entry.model === "object")
         ? entry.model
@@ -183,6 +185,20 @@ export function resolveAgentEffectiveModelPrimary(
     resolveAgentExplicitModelPrimary(cfg, agentId) ??
     resolveModelPrimary(cfg.agents?.defaults?.model)
   );
+}
+
+export function resolveAgentExplicitProvider(
+  cfg: OpenClawConfig,
+  agentId: string,
+): string | undefined {
+  return resolveAgentConfig(cfg, agentId)?.provider;
+}
+
+export function resolveAgentEffectiveProvider(
+  cfg: OpenClawConfig,
+  agentId: string,
+): string | undefined {
+  return resolveAgentExplicitProvider(cfg, agentId) ?? cfg.agents?.defaults?.provider;
 }
 
 // Backward-compatible alias. Prefer explicit/effective helpers at new call sites.

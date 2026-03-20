@@ -10,6 +10,7 @@ import { sanitizeForLog } from "../terminal/ansi.js";
 import {
   resolveAgentConfig,
   resolveAgentEffectiveModelPrimary,
+  resolveAgentEffectiveProvider,
   resolveAgentModelFallbacksOverride,
 } from "./agent-scope.js";
 import { DEFAULT_MODEL, DEFAULT_PROVIDER } from "./defaults.js";
@@ -287,12 +288,14 @@ export function resolveConfiguredModelRef(params: {
         return aliasMatch.ref;
       }
 
-      // Default to anthropic if no provider is specified, but warn as this is deprecated.
+      // Default to the provided defaultProvider (which may be configured via agents.defaults.provider or OPENCLAW_AGENTS_PROVIDER)
+      // but warn if it's not specified in the model string as this is deprecated.
       const safeTrimmed = sanitizeForLog(trimmed);
+      const effectiveProvider = params.defaultProvider || DEFAULT_PROVIDER;
       log.warn(
-        `Model "${safeTrimmed}" specified without provider. Falling back to "anthropic/${safeTrimmed}". Please use "anthropic/${safeTrimmed}" in your config.`,
+        `Model "${safeTrimmed}" specified without provider. Falling back to "${effectiveProvider}/${safeTrimmed}". Please use "${effectiveProvider}/${safeTrimmed}" in your config.`,
       );
-      return { provider: "anthropic", model: trimmed };
+      return { provider: effectiveProvider, model: trimmed };
     }
 
     const resolved = resolveModelRefFromString({
@@ -341,6 +344,10 @@ export function resolveDefaultModelForAgent(params: {
   const agentModelOverride = params.agentId
     ? resolveAgentEffectiveModelPrimary(params.cfg, params.agentId)
     : undefined;
+  const agentProviderOverride = params.agentId
+    ? resolveAgentEffectiveProvider(params.cfg, params.agentId)
+    : params.cfg.agents?.defaults?.provider;
+
   const cfg =
     agentModelOverride && agentModelOverride.length > 0
       ? {
@@ -359,7 +366,7 @@ export function resolveDefaultModelForAgent(params: {
       : params.cfg;
   return resolveConfiguredModelRef({
     cfg,
-    defaultProvider: DEFAULT_PROVIDER,
+    defaultProvider: agentProviderOverride || DEFAULT_PROVIDER,
     defaultModel: DEFAULT_MODEL,
   });
 }
