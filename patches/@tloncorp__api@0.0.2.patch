@@ -1,0 +1,61 @@
+diff --git a/src/api/channelContentConfig.ts b/src/api/channelContentConfig.ts
+index db04389912b806c2205a9a7810b0e8dccd3f42fe..2ceb7cc1090786fe764f5fbd978fcf085258a904 100644
+--- a/src/api/channelContentConfig.ts
++++ b/src/api/channelContentConfig.ts
+@@ -24,9 +24,9 @@ type ParameterSpec =
+   | RadioParameterSpec;
+ 
+ export interface ComponentSpec<EnumTag extends string = string> {
+-  displayName: string;
+-  enumTag: EnumTag;
+-  parametersSchema?: Record<string, ParameterSpec>;
++  readonly displayName: string;
++  readonly enumTag: EnumTag;
++  readonly parametersSchema?: Record<string, ParameterSpec>;
+ }
+ 
+ function standardCollectionParameters(): Record<string, ParameterSpec> {
+diff --git a/src/debug.ts b/src/debug.ts
+index 2d819064bc303c895c01b83c34643a7b54ce60a5..d2e8ff6421fa075b29cb0fcdca25683e9609864c 100644
+--- a/src/debug.ts
++++ b/src/debug.ts
+@@ -19,6 +19,7 @@ export function isDev(): boolean {
+ 
+ // Declare __DEV__ for TypeScript (React Native global)
+ declare const __DEV__: boolean | undefined;
++declare const process: any;
+ 
+ export interface Logger {
+   log: (...args: any[]) => void;
+diff --git a/src/domain/groupTemplates.ts b/src/domain/groupTemplates.ts
+index 270994d9a1faedcebee752c0dcc122e1ef3c5161..214a700b84891d01d66c9b93d95d084ea4e29dcf 100644
+--- a/src/domain/groupTemplates.ts
++++ b/src/domain/groupTemplates.ts
+@@ -1,18 +1,18 @@
+ export type TemplateChannelType = 'chat' | 'notebook' | 'gallery';
+ 
+ export interface TemplateChannel {
+-  type: TemplateChannelType;
+-  title: string;
+-  description: string;
++  readonly type: TemplateChannelType;
++  readonly title: string;
++  readonly description: string;
+ }
+ 
+ export interface GroupTemplate {
+-  id: string;
+-  title: string;
+-  subtitle: string;
+-  description: string;
+-  icon: string;
+-  channels: TemplateChannel[];
++  readonly id: string;
++  readonly title: string;
++  readonly subtitle: string;
++  readonly description: string;
++  readonly icon: string;
++  readonly channels: readonly TemplateChannel[];
+ }
+ 
+ export const groupTemplates = [

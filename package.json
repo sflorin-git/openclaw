@@ -738,11 +738,14 @@
   "devDependencies": {
     "@grammyjs/types": "^3.25.0",
     "@lit-labs/signals": "^0.2.0",
+    "@lit/context": "^1.1.4",
     "@tanstack/react-query": "^5.62.7",
     "@types/express": "^5.0.6",
     "@types/markdown-it": "^14.1.2",
-    "@types/node": "^25.5.0",
+    "@types/node": "^22.13.9",
     "@types/qrcode-terminal": "^0.12.2",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
     "@types/ws": "^8.18.1",
     "@typescript/native-preview": "7.0.0-dev.20260317.1",
     "@vitest/coverage-v8": "^4.1.0",
@@ -756,7 +759,7 @@
     "signal-utils": "0.21.1",
     "tsdown": "0.21.4",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3",
+    "typescript": "5.8.3",
     "vitest": "^4.1.0"
   },
   "peerDependencies": {
@@ -810,6 +813,9 @@
           "strip-ansi": "^7.2.0"
         }
       }
+    },
+    "patchedDependencies": {
+      "@tloncorp/api@0.0.2": "patches/@tloncorp__api@0.0.2.patch"
     }
   }
 }
