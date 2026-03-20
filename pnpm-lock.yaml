@@ -215,9 +215,9 @@ importers:
       '@lit-labs/signals':
         specifier: ^0.2.0
         version: 0.2.0
-      '@lit/context':
-        specifier: ^1.1.6
-        version: 1.1.6
+      '@tanstack/react-query':
+        specifier: ^5.62.7
+        version: 5.91.3(react@19.2.4)
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6
@@ -257,6 +257,9 @@ importers:
       oxlint-tsgolint:
         specifier: ^0.17.0
         version: 0.17.0
+      react:
+        specifier: ^19.0.0
+        version: 19.2.4
       signal-utils:
         specifier: 0.21.1
         version: 0.21.1(signal-polyfill@0.2.2)
@@ -1710,9 +1713,6 @@ packages:
 
   '@lit-labs/ssr-dom-shim@1.5.1':
     resolution: {integrity: sha512-Aou5UdlSpr5whQe8AA/bZG0jMj96CoJIWbGfZ91qieWu5AWUMKw8VR/pAkQkJYvBNhmCcWnZlyyk5oze8JIqYA==}
-
-  '@lit/context@1.1.6':
-    resolution: {integrity: sha512-M26qDE6UkQbZA2mQ3RjJ3Gzd8TxP+/0obMgE5HfkfLhEEyYE3Bui4A5XHiGPjy0MUGAyxB3QgVuw2ciS0kHn6A==}
 
   '@lit/reactive-element@2.1.2':
     resolution: {integrity: sha512-pbCDiVMnne1lYUIaYNN5wrwQXDtHaYtg7YEFPeW+hws6U47WeFvISGUWekPGKWOP1ygrs0ef0o1VJMk1exos5A==}
@@ -3421,6 +3421,14 @@ packages:
 
   '@swc/helpers@0.5.19':
     resolution: {integrity: sha512-QamiFeIK3txNjgUTNppE6MiG3p7TdninpZu0E0PbqVh1a9FNLT2FRhisaa4NcaX52XVhA5l7Pk58Ft7Sqi/2sA==}
+
+  '@tanstack/query-core@5.91.2':
+    resolution: {integrity: sha512-Uz2pTgPC1mhqrrSGg18RKCWT/pkduAYtxbcyIyKBhw7dTWjXZIzqmpzO2lBkyWr4hlImQgpu1m1pei3UnkFRWw==}
+
+  '@tanstack/react-query@5.91.3':
+    resolution: {integrity: sha512-D8jsCexxS5crZxAeiH6VlLHOUzmHOxeW5c11y8rZu0c34u/cy18hUKQXA/gn1Ila3ZIFzP+Pzv76YnliC0EtZQ==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@thi.ng/bitstream@2.4.43':
     resolution: {integrity: sha512-tObOEr+osboa0kqQPk7Ny0E3vVfBRch13YJO5RpaDDSkMQmoXK/pw3yW/6kKJIObt27YQol6pGlOZBvB8MsghQ==}
@@ -8829,10 +8837,6 @@ snapshots:
 
   '@lit-labs/ssr-dom-shim@1.5.1': {}
 
-  '@lit/context@1.1.6':
-    dependencies:
-      '@lit/reactive-element': 2.1.2
-
   '@lit/reactive-element@2.1.2':
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.5.1
@@ -10846,6 +10850,13 @@ snapshots:
   '@swc/helpers@0.5.19':
     dependencies:
       tslib: 2.8.1
+
+  '@tanstack/query-core@5.91.2': {}
+
+  '@tanstack/react-query@5.91.3(react@19.2.4)':
+    dependencies:
+      '@tanstack/query-core': 5.91.2
+      react: 19.2.4
 
   '@thi.ng/bitstream@2.4.43':
     dependencies:
