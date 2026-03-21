@@ -9,6 +9,7 @@ import { type ChannelId, listChannelPlugins } from "../channels/plugins/index.js
 import { formatCliCommand } from "../cli/command-format.js";
 import { createDefaultDeps } from "../cli/deps.js";
 import { isRestartEnabled } from "../config/commands.js";
+import { applyConfigRuntimeOverrides } from "../config/defaults.js";
 import {
   type ConfigFileSnapshot,
   type OpenClawConfig,
@@ -470,7 +471,13 @@ export async function startGatewayServer(
     });
 
   let cfgAtStart: OpenClawConfig;
-  const startupRuntimeConfig = applyConfigOverrides(configSnapshot.config);
+  // Gateway startup begins from the raw on-disk snapshot, so apply the same
+  // env-backed runtime overrides that loadConfig() uses before resolving
+  // non-loopback Control UI policy and other startup-time config.
+  const startupRuntimeConfig = applyConfigRuntimeOverrides(
+    applyConfigOverrides(configSnapshot.config),
+    process.env,
+  );
   const authBootstrap = await prepareGatewayStartupConfig({
     configSnapshot,
     runtimeConfig: startupRuntimeConfig,
