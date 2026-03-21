@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadDotEnv } from "../infra/dotenv.js";
+import { loadConfig } from "./config.js";
 import { resolveConfigEnvVars } from "./env-substitution.js";
 import {
   applyConfigEnvVars,
@@ -128,6 +129,23 @@ describe("config env vars", () => {
         const second = resolveConfigEnvVars(config, process.env) as OpenClawConfig;
         expect(second.tools?.web?.search?.apiKey).toBe("from-dotenv");
       });
+    });
+  });
+
+  it("applies runtime env overrides even when no config file exists", async () => {
+    await withTempHome(async (_home) => {
+      await withEnvOverride(
+        {
+          OPENCLAW_GATEWAY_MODE: "local",
+          OPENCLAW_CONTROL_UI_FALLBACK: "true",
+        },
+        async () => {
+          const cfg = loadConfig();
+
+          expect(cfg.gateway?.mode).toBe("local");
+          expect(cfg.gateway?.controlUi?.dangerouslyAllowHostHeaderOriginFallback).toBe(true);
+        },
+      );
     });
   });
 });
