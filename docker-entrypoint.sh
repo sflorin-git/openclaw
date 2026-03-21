@@ -91,7 +91,14 @@ MODELS_EOF
   chown node:node "${AGENT_DIR}/models.json"
 fi
 
-# 3. Drop privileges and exec the gateway as the 'node' user.
+# 3. Non-loopback Docker deployments need explicit Control UI origins or the
+# supported Host-header fallback mode. Cloud deployments typically rely on the
+# public host header, so enable the fallback unless the operator already set it.
+if [ "${GATEWAY_BIND}" != "loopback" ] && [ -z "${OPENCLAW_CONTROL_UI_FALLBACK}" ]; then
+  export OPENCLAW_CONTROL_UI_FALLBACK=true
+fi
+
+# 4. Drop privileges and exec the gateway as the 'node' user.
 # Docker deployments commonly bootstrap config from env/volumes after first start,
 # so allow startup without a pre-existing openclaw.json.
 exec gosu node node openclaw.mjs gateway --bind "${GATEWAY_BIND}" --port "${GATEWAY_PORT}" --allow-unconfigured
