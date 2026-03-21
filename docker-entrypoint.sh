@@ -11,6 +11,8 @@ set -e
 
 OPENCLAW_HOME="/home/node/.openclaw"
 AGENT_DIR="${OPENCLAW_HOME}/agents/main/agent"
+GATEWAY_BIND="${OPENCLAW_GATEWAY_BIND:-lan}"
+GATEWAY_PORT="${OPENCLAW_GATEWAY_PORT:-18789}"
 
 # 1. Ensure directory structure exists
 mkdir -p "${AGENT_DIR}"
@@ -90,4 +92,6 @@ MODELS_EOF
 fi
 
 # 3. Drop privileges and exec the gateway as the 'node' user.
-exec gosu node node openclaw.mjs gateway --bind lan
+# Docker deployments commonly bootstrap config from env/volumes after first start,
+# so allow startup without a pre-existing openclaw.json.
+exec gosu node node openclaw.mjs gateway --bind "${GATEWAY_BIND}" --port "${GATEWAY_PORT}" --allow-unconfigured
